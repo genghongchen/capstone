@@ -1,3 +1,4 @@
+import { profile } from 'console'
 import React, { Component } from 'react'
 import { Link, Route, Router, Switch } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
@@ -59,10 +60,22 @@ export default class App extends Component<AppProps, AppState> {
         <Menu.Item name="home">
           <Link to="/">Home</Link>
         </Menu.Item>
-
+        <Menu.Menu>{this.profileButton()}</Menu.Menu>
         <Menu.Menu position="right">{this.logInLogOutButton()}</Menu.Menu>
       </Menu>
     )
+  }
+
+  profileButton() {
+    if (this.props.auth.isAuthenticated()) {
+      return (
+        <Menu.Item name="profile" onClick={this.handleLogout}>
+          Profile
+        </Menu.Item>
+      )
+    } else {
+        return null
+    }
   }
 
   logInLogOutButton() {

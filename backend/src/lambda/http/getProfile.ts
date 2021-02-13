@@ -1,37 +1,36 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { createLogger } from '../../utils/logger';
-import { DeleteTodo } from '../../businessLogic/todos'
+import { GetProfile } from '../../businessLogic/profile'
 import { getUserId } from '../utils'
 
-const logger = createLogger("Delete Todo Item")
+const logger = createLogger ('Get Profile Items')
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info("Processing event: " + event)
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {  
+  try{
+    logger.info('Processing event: ', event)
 
-  const todoId = event.pathParameters.todoId
-  // TODO: Remove a TODO item by id
-  const userId = getUserId(event)
+    const userId = getUserId(event)
+    const profiles = await GetProfile(userId)
 
-  try {
-    await DeleteTodo(todoId, userId)
     return {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true
       },
-      body: JSON.stringify({})
+      body: JSON.stringify({
+        items: profiles
+      })
     }
-  } catch (e){
+  } catch (e) {
     logger.error('Error: ' + e.message)
-
     return {
       statusCode: 500,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true
-      },  
+      },
       body: e.message
     }
   }

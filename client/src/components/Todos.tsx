@@ -31,15 +31,6 @@ interface TodosState {
   loadingTodos: boolean
 }
 
-// @ts-ignore
-const MyCalendar = (dateString) => {
-  const [startDate, setStartDate] = React.useState(new Date(dateString));
-  return (
-    // @ts-ignore
-    <DatePicker selected={startDate} onChange={date => setStartDate(date)} />
-  );
-};
-
 function dateAdd(date: Date, interval: String, units: number) {
   if(!(date instanceof Date))
     return undefined;
