@@ -2,6 +2,8 @@ import dateFormat from 'dateformat'
 import { History } from 'history'
 import update from 'immutability-helper'
 import * as React from 'react'
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   Button,
   Checkbox,
@@ -29,13 +31,41 @@ interface TodosState {
   loadingTodos: boolean
 }
 
+// @ts-ignore
+const MyCalendar = (dateString) => {
+  const [startDate, setStartDate] = React.useState(new Date(dateString));
+  return (
+    // @ts-ignore
+    <DatePicker selected={startDate} onChange={date => setStartDate(date)} />
+  );
+};
+
+function dateAdd(date: Date, interval: String, units: number) {
+  if(!(date instanceof Date))
+    return undefined;
+  var ret = new Date(date); //don't change original date
+  var checkRollover = function() { if(ret.getDate() != date.getDate()) ret.setDate(0);};
+  switch(String(interval).toLowerCase()) {
+    case 'year'   :  ret.setFullYear(ret.getFullYear() + units); checkRollover();  break;
+    case 'quarter':  ret.setMonth(ret.getMonth() + 3*units); checkRollover();  break;
+    case 'month'  :  ret.setMonth(ret.getMonth() + units); checkRollover();  break;
+    case 'week'   :  ret.setDate(ret.getDate() + 7*units);  break;
+    case 'day'    :  ret.setDate(ret.getDate() + units);  break;
+    case 'hour'   :  ret.setTime(ret.getTime() + units*3600000);  break;
+    case 'minute' :  ret.setTime(ret.getTime() + units*60000);  break;
+    case 'second' :  ret.setTime(ret.getTime() + units*1000);  break;
+    default       :  break;
+  }
+  return ret;
+}
+
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
     loadingTodos: true
   }
-
+   
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newTodoName: event.target.value })
   }
@@ -175,7 +205,20 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                 {todo.name}
               </Grid.Column>
               <Grid.Column width={3} floated="right">
-                {todo.dueDate}
+                <DatePicker 
+                  disabled={todo.done}
+                  minDate={new Date()}
+                  selected={dateAdd(new Date(todo.dueDate), 'minute', new Date().getTimezoneOffset())}
+                  onChange={async (date: Date) => {
+                    todo.dueDate = dateFormat(date, 'yyyy-mm-dd')
+                    await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
+                      name: todo.name,
+                      dueDate: todo.dueDate,
+                      done: todo.done
+                    })
+                    this.forceUpdate()
+                  }} 
+                />
               </Grid.Column>
               <Grid.Column width={1} floated="right">
                 <Button
