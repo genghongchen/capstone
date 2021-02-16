@@ -45,7 +45,6 @@ export async function patchProfile(
 
 export async function deleteProfile(
   idToken: string,
-  todoId: string
 ): Promise<void> {
   await Axios.delete(`${apiEndpoint}/profile`, {
     headers: {

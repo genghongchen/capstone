@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Form, Button } from 'semantic-ui-react'
+import { Form, Button, Grid } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
 import { getProfile, createProfile, patchProfile, deleteProfile  } from '../api/profile-api'
 
@@ -50,7 +50,6 @@ export class EditProfile extends React.PureComponent<
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const name = event.target.value
-    if (!name) return
 
     this.setState({
       newUserName: name
@@ -59,11 +58,30 @@ export class EditProfile extends React.PureComponent<
 
   handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const email = event.target.value
-    if (!email) return
 
     this.setState({
       newUserEmail: email
     })
+  }
+
+  handleDelete = async (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
+    try {
+      if (this.state.userEmail !== "" || this.state.userName !== "") {
+        await deleteProfile(this.props.auth.getIdToken())
+        this.setState({
+          userEmail: "",
+          userName: "",
+          newUserEmail: "",
+          newUserName: ""
+        })
+      }
+    } catch (e) {
+      alert('Could not delete profile: ' + e.message)
+    } finally {
+      alert('Profile is successfully deleted!')
+    }
   }
 
   handleSubmit = async (event: React.SyntheticEvent) => {
@@ -80,7 +98,7 @@ export class EditProfile extends React.PureComponent<
         return
       }
 
-      if (this.state.userEmail === "" && this.state.userName == "") {
+      if (this.state.userEmail === "" && this.state.userName === "") {
         // Create Profile
         const newProfile = await createProfile(this.props.auth.getIdToken(), {
           userEmail: this.state.newUserEmail,
@@ -91,7 +109,7 @@ export class EditProfile extends React.PureComponent<
   
         this.setState({
           userEmail: this.state.newUserEmail,
-          userName: this.state.newUserName,
+          userName: this.state.newUserName
         })  
       } else {
         // Update (Patch) Profile
@@ -133,7 +151,10 @@ export class EditProfile extends React.PureComponent<
               onChange={this.handleEmailChange}
             />
           </Form.Field>
-          {this.renderButton()}
+          <div>
+            {this.renderButton()}
+            {this.renderDelButton()}
+          </div>
         </Form>
       </div>
     )
@@ -142,23 +163,36 @@ export class EditProfile extends React.PureComponent<
   renderButton() {
     if (this.state.userEmail === "" && this.state.userName === "") {
       return (
-        <div>
-          <Button
-            type="submit"
-          >
-            Create Profile
-          </Button>
-        </div>
+        <Button
+          type="submit"
+        >
+          Create Profile
+        </Button>
       )
     } else {
       return (
-        <div>
-          <Button
-            type="submit"
-          >
-            Update Profile
-          </Button>
-        </div>
+        <Button
+          type="submit"
+        >
+          Update Profile
+        </Button>
+      )
+    }
+  }
+
+  renderDelButton() {
+    if (this.state.userEmail === "" && this.state.userName === "") {
+      return (
+        null
+      )
+    } else {
+      return (
+        <Button
+           type="submit"
+           onClick={this.handleDelete}
+        >
+          Delete Profile
+        </Button>
       )
     }
   }
