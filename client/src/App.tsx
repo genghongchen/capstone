@@ -5,6 +5,7 @@ import { Grid, Menu, Segment } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
 import { EditTodo } from './components/EditTodo'
+import { EditProfile } from './components/EditProfile'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { Todos } from './components/Todos'
@@ -24,6 +25,7 @@ export default class App extends Component<AppProps, AppState> {
 
     this.handleLogin = this.handleLogin.bind(this)
     this.handleLogout = this.handleLogout.bind(this)
+    this.handleProfile = this.handleProfile.bind(this)
   }
 
   handleLogin() {
@@ -32,6 +34,10 @@ export default class App extends Component<AppProps, AppState> {
 
   handleLogout() {
     this.props.auth.logout()
+  }
+
+  handleProfile() {
+    this.props.history.push(`/profile`)
   }
 
   render() {
@@ -69,7 +75,7 @@ export default class App extends Component<AppProps, AppState> {
   profileButton() {
     if (this.props.auth.isAuthenticated()) {
       return (
-        <Menu.Item name="profile" onClick={this.handleLogout}>
+        <Menu.Item name="profile" onClick={this.handleProfile}>
           Profile
         </Menu.Item>
       )
@@ -114,6 +120,14 @@ export default class App extends Component<AppProps, AppState> {
           exact
           render={props => {
             return <EditTodo {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/profile"
+          exact
+          render={props => {
+            return <EditProfile {...props} auth={this.props.auth} />
           }}
         />
 
