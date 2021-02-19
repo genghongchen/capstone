@@ -5,7 +5,7 @@ import { createLogger } from '../../utils/logger';
 import { UpdateProfile } from '../../businessLogic/profile'
 import { getUserId } from '../utils'
 
-const logger = createLogger ('Update Profile Item')
+const logger = createLogger ('Update Profile')
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try{

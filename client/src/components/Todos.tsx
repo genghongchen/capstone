@@ -56,6 +56,18 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     newTodoName: '',
     loadingTodos: true
   }
+
+  compare(a: Todo, b: Todo) {
+    // unfinished task first
+    if (a.done === false && b.done === true)
+      return -1
+    if (a.done === true && b.done === false)
+      return 1
+    let aDueDate = new Date(a.dueDate)
+    let bDueDate = new Date(b.dueDate)
+    // due early task first
+    return aDueDate < bDueDate ? -1: 1
+  }
    
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newTodoName: event.target.value })
@@ -76,7 +88,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       console.log(newTodo)
 
       this.setState({
-        todos: [...this.state.todos, newTodo],
+        todos: [...this.state.todos, newTodo].sort(this.compare),
         newTodoName: ''
       })
     } catch {
@@ -103,19 +115,19 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         dueDate: todo.dueDate,
         done: !todo.done
       })
+
       this.setState({
-        todos: update(this.state.todos, {
-          [pos]: { done: { $set: !todo.done } }
-        })
+        todos: update(this.state.todos, { [pos]: { done: { $set: !todo.done }}}).sort(this.compare)
       })
     } catch {
-      alert('Todo deletion failed')
+      alert('Todo update failed')
     }
   }
 
   async componentDidMount() {
     try {
       const todos = await getTodos(this.props.auth.getIdToken())
+      todos.sort(this.compare)
       this.setState({
         todos,
         loadingTodos: false
@@ -206,6 +218,9 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                       name: todo.name,
                       dueDate: todo.dueDate,
                       done: todo.done
+                    })
+                    this.setState({
+                      todos: update(this.state.todos, { [pos]: { dueDate: { $set: todo.dueDate }}}).sort(this.compare)
                     })
                     this.forceUpdate()
                   }} 
