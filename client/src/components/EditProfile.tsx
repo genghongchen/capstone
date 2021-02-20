@@ -87,18 +87,18 @@ export class EditProfile extends React.PureComponent<
   handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault()
 
-    try {
-      if (!this.state.newUserEmail) {
-        alert('Email is require!')
-        return
-      }
+    if (!this.state.newUserEmail) {
+      alert('Email is require!')
+      return
+    }
 
-      if (!this.state.newUserName) {
-        alert('Name is require!')
-        return
-      }
+    if (!this.state.newUserName) {
+      alert('Name is require!')
+      return
+    }
 
-      if (this.state.userEmail === "" && this.state.userName === "") {
+    if (this.state.userEmail === "" && this.state.userName === "") {
+      try {
         // Create Profile
         const newProfile = await createProfile(this.props.auth.getIdToken(), {
           userEmail: this.state.newUserEmail,
@@ -110,8 +110,14 @@ export class EditProfile extends React.PureComponent<
         this.setState({
           userEmail: this.state.newUserEmail,
           userName: this.state.newUserName
-        })  
-      } else {
+        })
+      } catch (e) {
+        alert('Could not create profile: ' + e.message)
+      } finally {
+        alert('Profile is successfully created!')
+      } 
+    } else {
+      try {
         // Update (Patch) Profile
         await patchProfile(this.props.auth.getIdToken(), {
           userEmail: this.state.newUserEmail,
@@ -121,11 +127,11 @@ export class EditProfile extends React.PureComponent<
           userEmail: this.state.newUserEmail,
           userName: this.state.newUserName
         })
+      } catch (e) {
+        alert('Could not update profile: ' + e.message)
+      } finally {
+        alert('Profile is successfully updated!')
       }
-    } catch (e) {
-      alert('Could not create or update profile: ' + e.message)
-    } finally {
-      alert('Profile is successfully created or updated!')
     }
   }
 
